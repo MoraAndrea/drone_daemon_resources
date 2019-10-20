@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: drone-daemon-resources
+  namespace: rabbit
+spec:
+  selector:
+    matchLabels:
+      run: drone-daemon-resources
+  template:
+    metadata:
+      labels:
+        run: drone-daemon-resources
+    spec:
+      containers:
+        - name: drone-daemon-resources
+          image: drone-daemon-resources:first
+          imagePullPolicy: IfNotPresent
+          tty: true # for format and color log
+      restartPolicy: Always # possible values Always, OnFailure, and Never. The default value is Always.
