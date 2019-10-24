@@ -21,6 +21,7 @@
     <property name="DefaultGoTemplateProperty" value="Go File" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="go.import.settings.migrated" value="true" />
+    <property name="go.tried.to.enable.integration.vgo.integrator" value="true" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$/test" />
   </component>
   <component name="RecentsManager">
@@ -54,9 +55,9 @@
     </configuration>
     <configuration name="go build main.go" type="GoApplicationRunConfiguration" factoryName="Go Application" temporary="true" nameIsGenerated="true">
       <module name="drone_daemon_resources" />
-      <working_directory value="$PROJECT_DIR$/" />
+      <working_directory value="$PROJECT_DIR$/../drone_daemon_resources/" />
       <kind value="FILE" />
-      <filePath value="$PROJECT_DIR$/main.go" />
+      <filePath value="$PROJECT_DIR$/../drone_daemon_resources/main.go" />
       <package value="drone_resources" />
       <directory value="$PROJECT_DIR$/" />
       <method v="2" />

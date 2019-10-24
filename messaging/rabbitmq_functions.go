@@ -1,13 +1,10 @@
 package messaging
 
 import (
-	"drone_daemon_resources/configuration"
 	log "github.com/sirupsen/logrus"
 	"github.com/streadway/amqp"
 	"os"
 )
-
-var configurationEnv *configuration.ConfigType
 
 type RabbitMq struct {
 	conn    *amqp.Connection
@@ -41,28 +38,25 @@ func (confRabbit RabbitMq) Ch() *amqp.Channel {
 	return confRabbit.ch
 }
 
-func InitRabbitMq(queueName string, broker string, username string, password string) *RabbitMq {
-
-	// Load and create configurationEnv
-	configurationEnv = configuration.Config()
+func InitRabbitMq(queueName string, brokerAddress string, brokerPort string, virtualHost string, username string, password string) *RabbitMq {
 
 	config := &RabbitMq{}
 
-	//print(configurationEnv.RabbitConf.QueueResources, configurationEnv.RabbitConf.BrokerAddress, configurationEnv.RabbitConf.Username, configurationEnv.RabbitConf.Password)
-	config.Connect(configurationEnv.RabbitConf.BrokerAddress, configurationEnv.RabbitConf.Username, configurationEnv.RabbitConf.Password)
+	config.Connect(brokerAddress, brokerPort, virtualHost, username, password)
 
 	config.CreateChannel()
 
-	config.DeclareQueue("resources-advertisement")//configurationEnv.RabbitConf.QueueResources)
+	config.DeclareQueue(queueName)
 
 	return config
 }
 
 // Connect to RabbitMq
-func (confRabbit *RabbitMq) Connect(broker string, username string, password string) {
+func (confRabbit *RabbitMq) Connect(brokerAddress string, brokerPort string, virtualHost string, username string, password string) {
 
 	//print("amqp://" + username + ":" + password + "@rabbitmq-service:5672/")
-	conn, err := amqp.Dial("amqp://drone:drone@rabbitmq-service:5672/")
+	//conn, err := amqp.Dial("amqp://drone:drone@rabbitmq-service:5672/")
+	conn, err := amqp.Dial("amqp://" + username + ":" + password + "@" + brokerAddress + ":" + brokerPort + "/" + virtualHost)
 	failOnError(err, "Failed to connect to RabbitMQ")
 	confRabbit.SetConn(conn)
 	confRabbit.SetErr(err)
@@ -157,7 +151,7 @@ func setLog() {
 	Formatter := new(log.TextFormatter)
 	Formatter.TimestampFormat = "02-01-2006 15:04:05"
 	Formatter.FullTimestamp = true
-	Formatter.ForceColors= true
+	Formatter.ForceColors = true
 	log.SetFormatter(Formatter)
 	log.SetLevel(log.DebugLevel)
 }

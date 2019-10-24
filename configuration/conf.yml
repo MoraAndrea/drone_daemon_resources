@@ -2,6 +2,7 @@
 rabbit:
   broker_address: "rabbitmq-service"
   broker_port: "5672"
+  v_host: ""
   username: "guest"
   password: "guest"
   queue_resources: "resources-advertisement"
@@ -14,3 +15,7 @@ federation:
 kubernetes:
   namespace: "demo"
   cluster_name: "cluster1"
+
+# Parameter for Resources (scale is percentage for reduce resources)
+resources:
+  scale: 100

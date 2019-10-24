@@ -7,6 +7,12 @@ docker build -t drone-daemon-resources:first .
 echo "Load image on kind..."
 kind load docker-image drone-daemon-resources:first --name cluster1
 
+echo "Apply config map..,"
+kubectl apply -f config-map.yml -n drone
+
+echo "Apply on cluster..,"
+kubectl apply -f drone-daemon-resources.yml -n drone
+
 # kubectl run --rm -i drone-daemon-resources --image=drone-daemon-resources:first -n demo
-# kubectl apply -f drone-daemon-resources.yml
+# kubectl apply -f drone-daemon-resources.yml -n drone
 # kind load docker-image drone-daemon-resources:first --name cluster1

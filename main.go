@@ -123,7 +123,7 @@ func setLog() {
 	Formatter := new(log.TextFormatter)
 	Formatter.TimestampFormat = "02-01-2006 15:04:05"
 	Formatter.FullTimestamp = true
-	Formatter.ForceColors= true
+	Formatter.ForceColors = true
 	log.SetFormatter(Formatter)
 	log.SetLevel(log.DebugLevel)
 }
@@ -148,7 +148,12 @@ func main() {
 	}
 
 	// Init rabbitMq connection, channel and queue
-	rabbit = messaging.InitRabbitMq(configurationEnv.RabbitConf.QueueResources, configurationEnv.RabbitConf.BrokerAddress, configurationEnv.RabbitConf.Username, configurationEnv.RabbitConf.Password)
+	rabbit = messaging.InitRabbitMq(configurationEnv.RabbitConf.QueueResources,
+									configurationEnv.RabbitConf.BrokerAddress,
+									configurationEnv.RabbitConf.BrokerPort,
+									configurationEnv.RabbitConf.VirtualHost,
+									configurationEnv.RabbitConf.Username,
+									configurationEnv.RabbitConf.Password)
 
 	// Sent first resources
 	err = createAndSendMessage(clientSet)
@@ -191,7 +196,7 @@ func podUpdated(oldObj, obj interface{}) {
 func watchPods(clientSet *kubernetes.Clientset, store cache.Store) cache.Store {
 	//Define what we want to look for (Pods)
 	// v1.NamespaceAll
-	watchlist := cache.NewListWatchFromClient(clientSet.CoreV1().RESTClient(), "pods", "demo"/*configurationEnv.Kubernetes.Namespace*/, fields.Everything())
+	watchlist := cache.NewListWatchFromClient(clientSet.CoreV1().RESTClient(), "pods", configurationEnv.Kubernetes.Namespace, fields.Everything())
 	resyncPeriod := 30 * time.Minute
 	//Setup an informer to call functions when the watchlist changes
 	eStore, eController := cache.NewInformer(
@@ -229,12 +234,12 @@ func createAndSendMessage(clientSet *kubernetes.Clientset) error {
 		return err
 	}
 
-	// Calculate cpu and memory free
-	var memory = (float64(totalClusterResources.Memory.Value())-float64(clusterUsed.Memory.Value()))/1024/1024
-	var cpu = (float64(totalClusterResources.CPU.MilliValue())-float64(clusterUsed.CPU.MilliValue()))/1000
+	// Calculate cpu and memory free and scale
+	var memory = ((float64(totalClusterResources.Memory.Value()) - float64(clusterUsed.Memory.Value())) / 1024 / 1024)*(float64(configurationEnv.Resources.Scale)/100)
+	var cpu = ((float64(totalClusterResources.CPU.MilliValue()) - float64(clusterUsed.CPU.MilliValue())) / 1000)*(float64(configurationEnv.Resources.Scale)/100)
 
 	// Create new message
-	message := messaging.NewResourceMessage("cluster1"/*configurationEnv.Kubernetes.ClusterName*/, memory, cpu)
+	message := messaging.NewResourceMessage(configurationEnv.Kubernetes.ClusterName, memory, cpu)
 	//log.Info(" Created Message %s", message)
 
 	jsonData, err := json.Marshal(message)
